@@ -1,0 +1,79 @@
+Resources:
+  uploader2AD2D593:
+    Type: AWS::IAM::User
+    Metadata:
+      aws:cdk:path: BuildStack/uploader/Resource
+  uploaderDefaultPolicyB59A9306:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - BuildBucket51D063EF
+                      - Arn
+                  - /*
+        Version: "2012-10-17"
+      PolicyName: uploaderDefaultPolicyB59A9306
+      Users:
+        - Ref: uploader2AD2D593
+    Metadata:
+      aws:cdk:path: BuildStack/uploader/DefaultPolicy/Resource
+  BuildBucket51D063EF:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: BuildStack/BuildBucket/Resource
+  BuildBucketPolicy64AA2CA0:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: BuildBucket51D063EF
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Principal: "*"
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - BuildBucket51D063EF
+                      - Arn
+                  - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: BuildStack/BuildBucket/Policy/Resource
+  myAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName:
+        Ref: uploader2AD2D593
+    Metadata:
+      aws:cdk:path: BuildStack/myAccessKey
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=0.31.0,@aws-cdk/aws-codepipeline-api=0.25.3,@aws-cdk/aws-events=0.25.3,@aws-cdk/aws-iam=0.25.3,@aws-cdk/aws-kms=0.25.3,@aws-cdk/aws-s3=0.25.3,@aws-cdk/aws-s3-notifications=0.25.3,@aws-cdk/cdk=0.25.3,@aws-cdk/cx-api=0.25.3,jsii-runtime=node.js/v11.11.0
+Outputs:
+  accessKeyId:
+    Value:
+      Ref: myAccessKey
+  secretAccessKey:
+    Value:
+      Fn::GetAtt:
+        - myAccessKey
+        - SecretAccessKey
+  bucket:
+    Value:
+      Ref: BuildBucket51D063EF
+
